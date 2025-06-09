@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import random
+import os
 
 # Create FastAPI app
 app = FastAPI(title="Object Detection API")
@@ -33,11 +36,12 @@ def mock_detect():
     
     return {"detections": detections}
 
-@app.get("/")
-def root():
+# API Routes
+@app.get("/api/")
+def api_root():
     return {"message": "Object Detection API is running on Render!", "status": "success"}
 
-@app.get("/health")
+@app.get("/api/health")
 def health():
     return {"status": "healthy"}
 
