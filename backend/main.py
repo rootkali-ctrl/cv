@@ -1,44 +1,34 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import base64
+import json
 from io import BytesIO
-from PIL import Image
-import numpy as np
-import os
+import random
 
-# Create FastAPI instance
-app = FastAPI(title="Object Detection API", version="1.0.0")
+# Create FastAPI app
+app = FastAPI(title="Object Detection API")
 
-# Enable CORS for React app
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Simple mock detection function (replace with actual model)
-def detect_objects_simple(image_array):
-    """
-    Mock detection function - replace this with your actual model
-    For now, it returns random detections for demo purposes
-    """
-    import random
-    
-    # Mock detections
-    mock_objects = ['person', 'car', 'dog', 'cat', 'bicycle', 'bottle', 'phone']
-    
+# Simple mock detection
+def mock_detect():
+    objects = ['person', 'car', 'dog', 'cat', 'bicycle', 'bottle', 'phone', 'laptop']
     detections = []
-    num_detections = random.randint(0, 3)
     
-    for i in range(num_detections):
+    for _ in range(random.randint(0, 3)):
         detections.append({
-            "label": random.choice(mock_objects),
-            "confidence": round(random.uniform(0.5, 0.95), 2),
+            "label": random.choice(objects),
+            "confidence": round(random.uniform(0.6, 0.95), 2),
             "box": {
-                "x": random.randint(50, 200),
-                "y": random.randint(50, 150),
+                "x": random.randint(50, 300),
+                "y": random.randint(50, 200),
                 "width": random.randint(80, 150),
                 "height": random.randint(80, 150)
             }
@@ -48,31 +38,22 @@ def detect_objects_simple(image_array):
 
 @app.get("/")
 async def root():
-    return {"message": "Object Detection API is running! (Simple version without OpenCV)"}
+    return {"message": "Object Detection API is running on Render!", "status": "success"}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
 
 @app.post("/api/detect-base64")
-async def detect_objects_base64(data: dict):
+async def detect_objects(data: dict):
     try:
-        # Decode base64 image
-        image_data = base64.b64decode(data["image"].split(",")[1])
-        image = Image.open(BytesIO(image_data))
-        image_array = np.array(image)
-        
-        # Simple detection (replace with actual model)
-        result = detect_objects_simple(image_array)
+        # Just return mock detection for now
+        result = mock_detect()
         return result
-        
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e), "detections": []}
 
-@app.get("/api/status")
-async def get_status():
-    return {
-        "status": "running",
-        "model": "simple_mock_detector",
-        "message": "Install opencv-python for full YOLO support"
-    }
-
+# This is important for Render
 if __name__ == "__main__":
     import uvicorn
     import os
