@@ -4,8 +4,10 @@ import base64
 from io import BytesIO
 from PIL import Image
 import numpy as np
+import os
 
-app = FastAPI()
+# Create FastAPI instance
+app = FastAPI(title="Object Detection API", version="1.0.0")
 
 # Enable CORS for React app
 app.add_middleware(
